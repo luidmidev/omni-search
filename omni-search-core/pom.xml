@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>omni-search-core</artifactId>
+    <name>Omni Search Core</name>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

@@ -9,7 +9,7 @@
     <version>1.0</version>
     <packaging>pom</packaging>
 
-    <name>omni-search</name>
+    <name>Omni Search</name>
     <description>
         Dynamic and intelligent searches for domain entities. Compatible with different providers.
     </description>

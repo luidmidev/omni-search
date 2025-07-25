@@ -9,6 +9,34 @@
     <version>1.0</version>
     <packaging>pom</packaging>
 
+    <name>omni-search</name>
+    <description>
+        Dynamic and intelligent searches for domain entities. Compatible with different providers.
+    </description>
+
+    <url>https://github.com/luidmidev/omni-search.git</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>luidmidev</id>
+            <name>Luis Miguel Vasquez Basurto</name>
+            <email>playerluis159@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/luidmidev/omni-search.git</url>
+        <connection>scm:git:git://github.com/luidmidev/omni-search.git</connection>
+        <developerConnection>scm:git:sshl://github.com/luidmidev/omni-search.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
     <modules>
         <module>omni-search-core</module>

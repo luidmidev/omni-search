@@ -195,6 +195,8 @@ public class JpaOmniSearchPredicateBuilder {
         if (conditions != null) {
             @SuppressWarnings("unchecked")
             var visitor = new JpaPredicateVisitor<M>().defineRoot(root);
+            var builderTools = visitor.getBuilderTools();
+            builderTools.setArgumentParser(JpaArgumentParser.getInstance());
             var filtersPredicate = conditions.accept(visitor, new EntityManagerAdapter(em));
             predicate = cb.and(predicate, filtersPredicate);
         }

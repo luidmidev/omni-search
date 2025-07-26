@@ -32,7 +32,7 @@ public class OmniSearchOptions extends OmniSearchBaseOptions {
     }
 
     @Override
-    public OmniSearchOptions conditions(@NotNull Node conditions) {
+    public OmniSearchOptions conditions(Node conditions) {
         return (OmniSearchOptions) super.conditions(conditions);
     }
 

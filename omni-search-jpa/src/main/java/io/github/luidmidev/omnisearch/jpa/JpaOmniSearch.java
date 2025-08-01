@@ -3,22 +3,36 @@ package io.github.luidmidev.omnisearch.jpa;
 import io.github.luidmidev.omnisearch.core.OmniSearch;
 import io.github.luidmidev.omnisearch.core.OmniSearchBaseOptions;
 import io.github.luidmidev.omnisearch.core.OmniSearchOptions;
+import io.github.luidmidev.omnisearch.jpa.rsql.builder.BuilderTools;
 import jakarta.persistence.*;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
 
 @Slf4j
-@RequiredArgsConstructor
 public class JpaOmniSearch implements OmniSearch {
 
     private final EntityManager em;
+    private final BuilderTools builderTools;
+
+    public JpaOmniSearch(EntityManager em) {
+        this(em, BuilderTools.DEFAULT);
+    }
+
+    public JpaOmniSearch(EntityManager em, BuilderTools builderTools) {
+        this.em = em;
+        this.builderTools = builderTools;
+    }
 
     @Override
     public <E> List<E> search(Class<E> entityClass, OmniSearchOptions options) {
-        var spec = JpaOmniSearchPredicateBuilder.buildSearchWhereSpec(em, entityClass, options);
+        var spec = JpaOmniSearchPredicateBuilder.buildSearchWhereSpec(
+                em,
+                entityClass,
+                options,
+                builderTools
+        );
 
         var cb = spec.criteriaBuilder();
         var query = spec.criteriaQuery();
@@ -49,7 +63,13 @@ public class JpaOmniSearch implements OmniSearch {
 
     @Override
     public <E> long count(Class<E> entityClass, OmniSearchBaseOptions options) {
-        var spec = JpaOmniSearchPredicateBuilder.buildSearchWhereSpec(em, Long.class, entityClass, options);
+        var spec = JpaOmniSearchPredicateBuilder.buildSearchWhereSpec(
+                em,
+                Long.class,
+                entityClass,
+                options,
+                builderTools
+        );
 
         var cb = spec.criteriaBuilder();
         var query = spec.criteriaQuery();

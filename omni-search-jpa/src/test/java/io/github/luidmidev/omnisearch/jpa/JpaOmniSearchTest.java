@@ -2,6 +2,7 @@ package io.github.luidmidev.omnisearch.jpa;
 
 import io.github.luidmidev.omnisearch.core.OmniSearchOptions;
 import cz.jirutka.rsql.parser.RSQLParser;
+import io.github.luidmidev.omnisearch.jpa.entities.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -71,8 +72,10 @@ class JpaOmniSearchTest {
         omniSearch = new JpaOmniSearch(em);
     }
 
+
     @AfterEach
     void tearDown() {
+
         em.getTransaction().begin();
         var users = em.createQuery("SELECT u FROM User u", User.class).getResultList();
         for (User user : users) {
@@ -89,6 +92,7 @@ class JpaOmniSearchTest {
 
     @Test
     void testSearchByName() {
+
         var options = new OmniSearchOptions()
                 .search("Alice");
 
@@ -99,6 +103,7 @@ class JpaOmniSearchTest {
 
     @Test
     void testSearchByEmailDomain() {
+
         var options = new OmniSearchOptions()
                 .search("example.com");
 
@@ -108,6 +113,7 @@ class JpaOmniSearchTest {
 
     @Test
     void testSearchBooleanTrue() {
+
         var options = new OmniSearchOptions()
                 .search("true");
 
@@ -117,6 +123,7 @@ class JpaOmniSearchTest {
 
     @Test
     void testSearchEnumLevel() {
+
         var options = new OmniSearchOptions()
                 .search("HIGH");
 
@@ -140,6 +147,7 @@ class JpaOmniSearchTest {
 
     @Test
     void testSearchByRole() {
+
         var options = new OmniSearchOptions()
                 .search("USER");
 
@@ -160,4 +168,95 @@ class JpaOmniSearchTest {
         assertEquals("Alice", result.getFirst().getName());
         assertTrue(result.getFirst().getEmail().contains("example.com"));
     }
+
+    @Test
+    void testSearchWithHouses() {
+        em.getTransaction().begin();
+        var countinentNA = Countinent.builder()
+                .code("NA")
+                .name("North America")
+                .description("North American continent")
+                .build();
+
+        var countinentSA = Countinent.builder()
+                .code("SA")
+                .name("South America")
+                .description("South American continent")
+                .build();
+
+        em.persist(countinentNA);
+        em.persist(countinentSA);
+
+        var countryUS = Country.builder().code("US").name("United States").countinent(countinentNA).build();
+        var countryCA = Country.builder().code("CA").name("Canada").countinent(countinentSA).build();
+        var countryMX = Country.builder().code("MX").name("Mexico").countinent(countinentSA).build();
+
+        em.persist(countryUS);
+        em.persist(countryCA);
+        em.persist(countryMX);
+
+        var user1 = User.builder()
+                .name("Eve")
+                .email("eve@ovi.com")
+                .active(true)
+                .level(User.Level.HIGH)
+                .roles(Set.of(User.Role.USER))
+                .houses(List.of(
+                        House.builder()
+                                .name("House1")
+                                .address("123 Main St")
+                                .numberOfRooms(3)
+                                .country(countryUS)
+                                .build(),
+                        House.builder()
+                                .name("House2")
+                                .address("456 Elm St")
+                                .numberOfRooms(4)
+                                .country(countryCA)
+                                .build(),
+                        House.builder()
+                                .name("House3")
+                                .address("789 Oak St")
+                                .numberOfRooms(5)
+                                .country(countryMX)
+                                .build()
+                ))
+                .build();
+
+        var user2 = User.builder()
+                .name("Frank")
+                .email("frank@ovi.com")
+                .active(true)
+                .level(User.Level.MEDIUM)
+                .roles(Set.of(User.Role.USER))
+                .houses(List.of(
+                        House.builder()
+                                .name("House4")
+                                .address("321 Pine St")
+                                .numberOfRooms(2)
+                                .country(countryUS)
+                                .build(),
+                        House.builder()
+                                .name("House5")
+                                .address("654 Maple St")
+                                .numberOfRooms(3)
+                                .country(countryCA)
+                                .build()
+                ))
+                .build();
+
+        em.persist(user1);
+        em.persist(user2);
+        em.getTransaction().commit();
+        omniSearch = new JpaOmniSearch(em);
+
+
+        var conditions = new RSQLParser().parse("houses.country.countinent.code==NA");
+        var options = new OmniSearchOptions()
+                .conditions(conditions);
+
+        List<User> result = omniSearch.search(User.class, options);
+        assertEquals(2, result.size());
+    }
+
 }

@@ -1,4 +1,4 @@
-package io.github.luidmidev.omnisearch.jpa;
+package io.github.luidmidev.omnisearch.jpa.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

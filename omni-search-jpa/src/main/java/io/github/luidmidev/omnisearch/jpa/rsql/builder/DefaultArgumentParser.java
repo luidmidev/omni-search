@@ -1,7 +1,9 @@
-package io.github.luidmidev.omnisearch.jpa;
+package io.github.luidmidev.omnisearch.jpa.rsql.builder;
 
-import com.github.tennaito.rsql.misc.ArgumentFormatException;
-import com.github.tennaito.rsql.misc.ArgumentParser;
+
+import io.github.luidmidev.omnisearch.jpa.rsql.ArgumentFormatException;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
@@ -22,14 +24,13 @@ import java.util.function.Function;
  * @author luidmidev
  */
 @Slf4j
-public class JpaArgumentParser implements ArgumentParser {
+public class DefaultArgumentParser implements ArgumentParser {
 
 
-    private static final JpaArgumentParser INSTANCE = new JpaArgumentParser();
+    @Getter
+    @Setter
+    private static DefaultArgumentParser instance = new DefaultArgumentParser();
 
-    public static JpaArgumentParser getInstance() {
-        return INSTANCE;
-    }
 
     // Date formatters for flexible parsing
     private static final List<DateTimeFormatter> DATE_FORMATTERS = Arrays.asList(
@@ -57,7 +58,7 @@ public class JpaArgumentParser implements ArgumentParser {
     // Custom parsers registry
     protected final Map<Class<?>, Function<String, ?>> customParsers = new ConcurrentHashMap<>();
 
-    public JpaArgumentParser() {
+    public DefaultArgumentParser() {
         registerDefaultParsers();
     }
 
@@ -121,7 +122,7 @@ public class JpaArgumentParser implements ArgumentParser {
     /**
      * Parse primitive and wrapper types
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "java:S3776"})
     private <T> T parsePrimitiveAndWrapperTypes(String argument, Class<T> type) {
         if (type.equals(String.class)) return (T) argument;
 
@@ -161,7 +162,7 @@ public class JpaArgumentParser implements ArgumentParser {
 
         // Legacy Date support
         if (type.equals(Date.class)) {
-            LocalDateTime dateTime = parseLocalDateTime(argument);
+            var dateTime = parseLocalDateTime(argument);
             return (T) Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
         }
 
@@ -307,10 +308,8 @@ public class JpaArgumentParser implements ArgumentParser {
     /**
      * Register default custom parsers
      */
-    private void registerDefaultParsers() {
+    protected void registerDefaultParsers() {
         // You can add any default custom parsers here
-        // For example:
-        // customParsers.put(MyCustomType.class, MyCustomType::fromString);
     }
 
     /**

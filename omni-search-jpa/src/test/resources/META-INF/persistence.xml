@@ -1,7 +1,10 @@
 <persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
     <persistence-unit name="test-pu" transaction-type="RESOURCE_LOCAL">
-        <class>io.github.luidmidev.omnisearch.jpa.User</class>
-        <class>io.github.luidmidev.omnisearch.jpa.Contacts</class>
+        <class>io.github.luidmidev.omnisearch.jpa.entities.User</class>
+        <class>io.github.luidmidev.omnisearch.jpa.entities.Countinent</class>
+        <class>io.github.luidmidev.omnisearch.jpa.entities.Country</class>
+        <class>io.github.luidmidev.omnisearch.jpa.entities.House</class>
+        <class>io.github.luidmidev.omnisearch.jpa.entities.Contacts</class>
         <!-- agrega más clases aquí si las usas -->
 
         <properties>

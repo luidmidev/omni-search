@@ -3,7 +3,6 @@ package io.github.luidmidev.omnisearch.jpa;
 import lombok.experimental.UtilityClass;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

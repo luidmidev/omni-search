@@ -1,10 +1,12 @@
 package io.github.luidmidev.omnisearch.jpa;
 
-import com.github.tennaito.rsql.jpa.JpaPredicateVisitor;
-import com.github.tennaito.rsql.misc.EntityManagerAdapter;
+
 import io.github.luidmidev.omnisearch.core.OmniSearchBaseOptions;
 import io.github.luidmidev.omnisearch.core.OmniSearchOptions;
 import io.github.luidmidev.omnisearch.core.SearchIgnore;
+import io.github.luidmidev.omnisearch.jpa.rsql.builder.BuilderTools;
+import io.github.luidmidev.omnisearch.jpa.rsql.JpaPredicateVisitor;
+import io.github.luidmidev.omnisearch.jpa.rsql.EntityManagerAdapter;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
 import lombok.experimental.UtilityClass;
@@ -150,26 +152,30 @@ public class JpaOmniSearchPredicateBuilder {
         return Collections.emptyList();
     }
 
+
     <E> SearchQuery<E, E> buildSearchWhereSpec(
             EntityManager em,
             Class<E> entityClass,
-            OmniSearchOptions options
+            OmniSearchOptions options,
+            BuilderTools builderTools
     ) {
-        return buildSearchWhereSpec(em, entityClass, entityClass, options);
+        return buildSearchWhereSpec(em, entityClass, entityClass, options, builderTools);
     }
+
 
     <Q, E> SearchQuery<Q, E> buildSearchWhereSpec(
             EntityManager em,
             Class<Q> queryClass,
             Class<E> entityClass,
-            OmniSearchBaseOptions options
+            OmniSearchBaseOptions options,
+            BuilderTools builderTools
     ) {
 
         var cb = em.getCriteriaBuilder();
         var query = cb.createQuery(queryClass);
         var root = query.from(entityClass);
 
-        var predicate = buildPredicate(em, cb, root, options);
+        var predicate = buildPredicate(em, cb, root, options, builderTools);
 
         query.where(predicate);
         return new SearchQuery<>(cb, query, root);
@@ -182,6 +188,16 @@ public class JpaOmniSearchPredicateBuilder {
             Root<M> root,
             OmniSearchBaseOptions options
     ) {
+        return buildPredicate(em, cb, root, options, BuilderTools.DEFAULT);
+    }
+
+    public static <M> Predicate buildPredicate(
+            EntityManager em,
+            CriteriaBuilder cb,
+            Root<M> root,
+            OmniSearchBaseOptions options,
+            BuilderTools builderTools
+    ) {
 
         var predicate = cb.conjunction();
 
@@ -193,10 +209,7 @@ public class JpaOmniSearchPredicateBuilder {
 
         var conditions = options.getConditions();
         if (conditions != null) {
-            @SuppressWarnings("unchecked")
-            var visitor = new JpaPredicateVisitor<M>().defineRoot(root);
-            var builderTools = visitor.getBuilderTools();
-            builderTools.setArgumentParser(JpaArgumentParser.getInstance());
+            var visitor = new JpaPredicateVisitor<>(root, builderTools);
             var filtersPredicate = conditions.accept(visitor, new EntityManagerAdapter(em));
             predicate = cb.and(predicate, filtersPredicate);
         }
@@ -204,8 +217,6 @@ public class JpaOmniSearchPredicateBuilder {
         return predicate;
     }
 
-
     record SearchQuery<Q, M>(CriteriaBuilder criteriaBuilder, CriteriaQuery<Q> criteriaQuery, Root<M> root) {
     }
-
 }

@@ -1,12 +1,15 @@
-package io.github.luidmidev.omnisearch.jpa;
+package io.github.luidmidev.omnisearch.jpa.entities;
 
+import io.github.luidmidev.omnisearch.jpa.JpaEnumSearchCandidate;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -30,13 +33,20 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Level level;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
+    @Builder.Default
+    private List<House> houses = new ArrayList<>();
+
     @CollectionTable
     @ElementCollection
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "user_id")
+    @Builder.Default
     private Set<Contacts> contacts = new HashSet<>();
 
     public enum Level implements JpaEnumSearchCandidate {
